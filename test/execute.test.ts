@@ -37,10 +37,18 @@ Deno.test("multi add stack '5 9 1 - /'", () => {
     assertEquals(engine.lastValue(), 0.625);
 });
 
-Deno.test("execute simple '5 +' gives error", () => {
+Deno.test("execute '5 +' gives error", () => {
     const engine = new ExecuteEngine();
     const state = engine.executeOperations([5, '+']);
   
     assert('error' in state);
     assertEquals(state.error, 'To execute operation enter atleast 2 values');
+});
+
+Deno.test("execute uknown operation '5 6 (' gives error", () => {
+    const engine = new ExecuteEngine();
+    const state = engine.executeOperations([5, 6, '(']);
+  
+    assert('error' in state);
+    assertEquals(state.error, 'Cannot calculate expression');
 });
