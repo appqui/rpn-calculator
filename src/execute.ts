@@ -1,48 +1,58 @@
-import { Expression, Operation, OperationState } from "./types.ts";
+import type { Expression, Operation } from './types.d.ts'
 
-const stack: number[] = [];
+export class ExecuteEngine {
+    private stack: number[] = [];
+    private successState: OperationSuccessState = { success: true }
 
-export function stackLastValue() {
-    if (!stack.length) return 0;
-
-    return stack[stack.length - 1];
-}
-
-export function executeOperations(operations: Expression[]): OperationState {
-    for (var operation of operations) {
-        
-        if (typeof operation == 'number')
-            stack.push(operation);
-
-        if (typeof operation == 'string') {
-            var state = executeOperation(operation);
-
-            if (state === undefined)
-                continue;
-
-            if ('error' in state)
-                return state;
+    lastValue () {
+        if (!this.stack.length) return 0;
+    
+        return this.stack[this.stack.length - 1];
+    }    
+    
+    executeOperations(operations: Expression[]): OperationState {
+        for (var operation of operations) {
+            
+            if (typeof operation == 'number')
+                this.stack.push(operation);
+    
+            if (typeof operation == 'string') {
+                var state = this.executeOperation(operation);
+    
+                if ('success' in state)
+                    continue;
+    
+                if ('error' in state)
+                    return state;
+            }
         }
+
+        return this.successState;
     }
-}
 
-function executeOperation(operation: Operation): OperationState {
-    if (stack.length < 2)
-        return { error: 'To execute operation enter atleast 2 values' };
+    private executeOperation(operation: Operation): OperationState {
+        if (this.stack.length < 2)
+            return { error: 'To execute operation enter atleast 2 values' };
+    
+        const value1 = this.stack.pop()!; // ! to enforce cannot be undefined
+        const value2 = this.stack.pop()!;
+    
+        const newValue = this.calculate(value1, value2, operation);
+    
+        if (newValue === undefined)
+            return { error: 'Cannot calculate expression' };
 
-    const value1 = stack.pop()!; // ! to enforce cannot be undefined
-    const value2 = stack.pop()!;
+        this.stack.push(newValue);
 
-    const newValue = calculate(value1, value2, operation);
-
-    stack.push(newValue);
-}
-
-function calculate(value1: number, value2: number, operation: Operation) {
-    switch (operation) {
-        case '+': return value2 + value1;
-        case '-': return value2 - value1;
-        case '*': return value2 * value1;
-        case '/': return value2 / value1;
+        return this.successState;
+    }
+    
+    private calculate(value1: number, value2: number, operation: Operation) {
+        switch (operation) {
+            case '+': return value2 + value1;
+            case '-': return value2 - value1;
+            case '*': return value2 * value1;
+            case '/': return value2 / value1;
+        }
     }
 }

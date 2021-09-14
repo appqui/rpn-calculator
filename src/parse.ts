@@ -1,4 +1,6 @@
-import { Expression, Operation, possibleOperations } from './types.ts';
+import type { Operation, Expression } from '../src/types.d.ts'
+
+const possibleOperations = ['+', '-', '*', '/'] as const;
 
 export function expressionToOperators(expression: string | null): Expression[] {
     if (expression == null)
