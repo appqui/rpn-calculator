@@ -34,14 +34,22 @@ export class ExecuteEngine {
         if (this.stack.length < 2)
             return { error: 'To execute operation enter atleast 2 values' };
     
-        const value1 = this.stack.pop()!; // ! to enforce cannot be undefined
-        const value2 = this.stack.pop()!;
+        const value1 = this.stack[this.stack.length - 1];
+        const value2 = this.stack[this.stack.length - 2];
     
         const newValue = this.calculate(value1, value2, operation);
-    
+        
         if (newValue === undefined)
             return { error: 'Cannot calculate expression' };
+        
+        if (!Number.isFinite(newValue))
+            return { error: 'Divide by zero' }
 
+        if (Number.isNaN(newValue))
+            return { error: 'Unknown value' }
+
+        this.stack.pop();
+        this.stack.pop();
         this.stack.push(newValue);
 
         return this.successState;
